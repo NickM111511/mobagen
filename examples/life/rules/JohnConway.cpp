@@ -3,37 +3,42 @@
 // Reference: https://playgameoflife.com/info
 void JohnConway::Step(World& world) {
   // todo: implement
+  // setting variables
   int maxSize = world.SideSize();
-  int neighborCount[maxSize][maxSize];
+  std::vector<int> neighborCount;
+  neighborCount.resize((maxSize * maxSize));
 
-  for (int i = 0; i < maxSize; i++) {
-    for (int j = 0; j < maxSize; j++) {
-      neighborCount[i][j] = 0;
-    }
-  }
-
+  // iterating over each tile
   for (int line = 0; line < maxSize; line++) {
     for (int column = 0; column < maxSize; column++) {
-      Point2D currentTile(line, column);
-
-      if (world.Get(currentTile) == true) {
+      // if tile is alive
+      if (world.Get(Point2D(column, line)) == true) {
+        // iterate over neighboring tiles
         for (int i = -1; i <= 1; i++) {
           for (int j = -1; j <= 1; j++) {
-            if (!(i == 0 && j == 0)) {
-              Point2D checkTile(line + i, column + j);
-              if (line + i < 0) {
-                if (column + j < 0) {
-                  neighborCount[maxSize - 1][maxSize - 1] += 1; //CountNeighbors(world, checkTile);
-                } else {
-                  neighborCount[maxSize - 1][(column + j) % maxSize] += 1; //CountNeighbors(world, checkTile);
-                }
+            // exclude own tile
+            if (i != 0 || j != 0) {
+              Point2D neighborCheck(line + i, column + j);
+              if (neighborCheck.x < 0) { // row index needs too low, wrap
+                neighborCheck.x += maxSize;
               }
-              else if (column + j < 0) {
-                neighborCount[(maxSize + j) % maxSize][maxSize - 1] += 1; //CountNeighbors(world, checkTile);
+              if (neighborCheck.x >= maxSize) { // row index too high, wrap
+                neighborCheck.x %= maxSize;
               }
-              else {
-                neighborCount[(maxSize + j) % maxSize][(column + j) % maxSize] += 1; //CountNeighbors(world, checkTile);
+              if (neighborCheck.y < 0) { // column index too low, wrap
+                neighborCheck.y += maxSize;
               }
+              if (neighborCheck.y >= maxSize) { // column index too high, wrap
+                neighborCheck.y %= maxSize;
+              }
+              // get tilePosition and wrap if it goes past vector index
+              int index = (neighborCheck.x * maxSize) + neighborCheck.y;
+              int maxIndex = maxSize * maxSize;
+              if(index >= maxIndex) {
+                index %= maxIndex;
+              }
+              // count neighbor at the index
+              neighborCount[index] += CountNeighbors(world, Point2D(neighborCheck.x, neighborCheck.y));
             }
           }
         }
@@ -43,22 +48,25 @@ void JohnConway::Step(World& world) {
 
   for (int i = 0; i < maxSize; i++) {
     for (int j = 0; j < maxSize; j++) {
-      if (neighborCount[i][j] == 0 || neighborCount[i][j] == 1) {
-        world.SetNext(Point2D(i, j), false);
+      if (neighborCount[(i * maxSize) + j] == 0 || neighborCount[(i * maxSize) + j] == 1) {
+        world.SetNext(Point2D(j, i), false);
       }
-      else if (neighborCount[i][j] == 2) {
-        continue;
+      else if (neighborCount[(i * maxSize) + j] == 2) {
+        if(world.Get(Point2D(j,i)) == true) {
+          world.SetNext(Point2D(j, i), true);
+        }
+        else {
+          world.SetNext(Point2D(j, i), false);
+        }
       }
-      else if (neighborCount[i][j] == 3) {
-        world.SetNext(Point2D(i, j), true);
+      else if (neighborCount[(i * maxSize) + j] == 3) {
+        world.SetNext(Point2D(j, i), true);
       }
       else {
-        world.SetNext(Point2D(i, j), false);
+        world.SetNext(Point2D(j, i), false);
       }
     }
   }
-
-  world.SwapBuffers();
 }
 
 int JohnConway::CountNeighbors(World& world, Point2D point) {
