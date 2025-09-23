@@ -4,6 +4,15 @@
 #include <climits>
 bool HuntAndKillExample::Step(World* w) {
   // todo: code this
+  std::vector<Point2D> nearbyNeighbors = getVisitables(w,randomStartPoint(w));
+
+  if (nearbyNeighbors.size() > 1) { // if there is a visitable neighbor
+    // go to the next neighbor randomized
+  } else if (nearbyNeighbors.size() == 1) { // if there is no visitable neighbor
+    // go to the next neighbor
+  } else {
+    // use the hunt mode here
+  }
   return false;
 }
 void HuntAndKillExample::Clear(World* world) {
@@ -32,6 +41,8 @@ std::vector<Point2D> HuntAndKillExample::getVisitables(World* w, const Point2D& 
   std::vector<Point2D> visitables;
 
   // todo: code this
+
+
 
   return visitables;
 }

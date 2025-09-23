@@ -4,6 +4,14 @@
 #include <climits>
 bool RecursiveBacktrackerExample::Step(World* w) {
   // todo: implement this
+  std::vector<Point2D> nearbyNeighbors = getVisitables(w, randomStartPoint(w));
+  if (nearbyNeighbors.size() > 1) {
+    // get a random neighbor
+  } else if (nearbyNeighbors.size() == 1) {
+    // go to the next neighbor
+  } else {
+    // start to backtrack
+  }
   return false;
 }
 
@@ -34,6 +42,11 @@ std::vector<Point2D> RecursiveBacktrackerExample::getVisitables(World* w, const 
   std::vector<Point2D> visitables;
 
   // todo: implement this
+  for (int i = -1; i < 2; i++) {
+    for (int j = -1; j < 2; j++) {
+      // do something here. 
+    }
+  }
 
   return visitables;
 }
