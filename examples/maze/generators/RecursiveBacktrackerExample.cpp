@@ -5,24 +5,86 @@
 bool RecursiveBacktrackerExample::Step(World* w) {
   // todo: implement this
     // check if search has started
+    Random random;
+    int tileFactor = (w->GetSize()/2);
+    int randomNumber = 0;
+
     if(stack.empty() && !visited[0][0]) {
         stack.emplace_back(0,0);
-      visited[0 - (w->GetSize()/2)][0 - (w->GetSize()/2)] = true;
-      w->SetNodeColor(Point2D(0 - (w->GetSize()/2),0 - (w->GetSize()/2)), Color32(255,3,3));
+      visited[0 - tileFactor][0 - tileFactor] = true;
+      w->SetNodeColor(Point2D(0 - tileFactor,0 - tileFactor), Color32(255,3,3));
     }
-  std::vector<Point2D> nearbyNeighbors = getVisitables(w, stack.back());
+
+    std::vector<Point2D> nearbyNeighbors = getVisitables(w, stack.back());
+    std::vector<Point2D> sortedNeighbors = nearbyNeighbors;
+
+    for(int i = 0; i < nearbyNeighbors.size(); i++) {
+        if(nearbyNeighbors[0].y > stack.back().y) {
+            sortedNeighbors.push_back(nearbyNeighbors[i]);
+        }
+    }
+    for(int i = 0; i < nearbyNeighbors.size(); i++) {
+        if(nearbyNeighbors[0].x < stack.back().x) {
+            sortedNeighbors.push_back(nearbyNeighbors[i]);
+        }
+    }
+    for(int i = 0; i < nearbyNeighbors.size(); i++) {
+        if(nearbyNeighbors[0].y < stack.back().y) {
+            sortedNeighbors.push_back(nearbyNeighbors[i]);
+        }
+    }
+    for(int i = 0; i < nearbyNeighbors.size(); i++) {
+        if(nearbyNeighbors[0].x > stack.back().x) {
+            sortedNeighbors.push_back(nearbyNeighbors[i]);
+        }
+    }
+
+    if(!nearbyNeighbors.empty()) {
+        randomNumber = random.Range(0,100) % nearbyNeighbors.size();
+    }
 
 
   if (nearbyNeighbors.size() > 1) { // more than one neighbor, randomly add one
-    visited[nearbyNeighbors[0].y - (w->GetSize()/2)][nearbyNeighbors[0].x - (w->GetSize()/2)] = true;
-    stack.push_back(nearbyNeighbors[0]);
-    w->SetNodeColor(Point2D(nearbyNeighbors[0].x - (w->GetSize()/2),nearbyNeighbors[0].y - (w->GetSize()/2)), Color32(255,3,3));
-  } else if (nearbyNeighbors.size() == 1) { // add the one neighbor
-    visited[nearbyNeighbors[0].y - (w->GetSize()/2)][nearbyNeighbors[0].x - (w->GetSize()/2)] = true;
-    stack.push_back(nearbyNeighbors[0]);
-    w->SetNodeColor(Point2D(nearbyNeighbors[0].x - (w->GetSize()/2),nearbyNeighbors[0].y - (w->GetSize()/2)), Color32(255,3,3));
-  } else { // no neighbors, start to backtrack
+    visited[sortedNeighbors[randomNumber].x - tileFactor][sortedNeighbors[randomNumber].y - tileFactor] = true;
+    w->SetNodeColor(Point2D(sortedNeighbors[randomNumber].x - tileFactor,sortedNeighbors[randomNumber].y - tileFactor), Color32(255,3,3));
 
+    if(sortedNeighbors[randomNumber].y > stack.back().y) {
+        w->SetNorth(Point2D(sortedNeighbors[randomNumber].x - tileFactor,sortedNeighbors[randomNumber].y - tileFactor), false);
+    }
+    if(sortedNeighbors[randomNumber].x < stack.back().x) {
+        w->SetEast(Point2D(sortedNeighbors[randomNumber].x - tileFactor,sortedNeighbors[randomNumber].y - tileFactor), false);
+    }
+    if(sortedNeighbors[randomNumber].y < stack.back().y) {
+        w->SetSouth(Point2D(sortedNeighbors[randomNumber].x - tileFactor,sortedNeighbors[randomNumber].y - tileFactor), false);
+    }
+    if(sortedNeighbors[randomNumber].x > stack.back().x) {
+        w->SetWest(Point2D(sortedNeighbors[randomNumber].x - tileFactor,sortedNeighbors[randomNumber].y - tileFactor), false);
+    }
+      stack.push_back(sortedNeighbors[randomNumber]);
+  }
+  else if (nearbyNeighbors.size() == 1) { // add the one neighbor
+    visited[nearbyNeighbors[0].x - tileFactor][nearbyNeighbors[0].y - tileFactor] = true;
+    w->SetNodeColor(Point2D(nearbyNeighbors[0].x - tileFactor,nearbyNeighbors[0].y - tileFactor), Color32(255,3,3));
+    if(nearbyNeighbors[0].y > stack.back().y) {
+        w->SetNorth(Point2D(nearbyNeighbors[0].x - tileFactor,nearbyNeighbors[0].y - tileFactor), false);
+    }
+    if(nearbyNeighbors[0].x < stack.back().x) {
+        w->SetEast(Point2D(nearbyNeighbors[0].x - tileFactor,nearbyNeighbors[0].y - tileFactor), false);
+    }
+    if(nearbyNeighbors[0].y < stack.back().y) {
+        w->SetSouth(Point2D(nearbyNeighbors[0].x - tileFactor,nearbyNeighbors[0].y - tileFactor), false);
+    }
+    if(nearbyNeighbors[0].x > stack.back().x) {
+        w->SetWest(Point2D(nearbyNeighbors[0].x - tileFactor,nearbyNeighbors[0].y - tileFactor), false);
+    }
+    stack.push_back(nearbyNeighbors[0]);
+  } else { // no neighbors, start to backtrack
+      if(stack.empty()) {
+          return false;
+      }
+      Point2D cellLocation = stack.back();
+      w->SetNodeColor(Point2D(cellLocation.x - tileFactor,cellLocation.y - tileFactor), Color32(0,0,0));
+      stack.pop_back();
   }
 
   return true;
